@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geth-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geth
+  template:
+    metadata:
+      labels:
+        app: geth
+    spec:
+      initContainers:
+      - name: geth-generate-jwt
+        image: frapsoft/openssl
+        command: ["sh", "-c", "openssl rand -hex 32 | tr -d '\\n' > /data/jwt.txt"]
+        volumeMounts:
+        - name: ethereum-data
+          mountPath: /data/
+      containers:
+      - name: geth
+        image: ethereum/client-go
+        command: ["geth"]
+        args:
+        - "--datadir"
+        - "/data/geth/"
+        - "--authrpc.addr"
+        - "0.0.0.0"
+        - "--authrpc.port"
+        - "8545"
+        - "--authrpc.vhosts"
+        - "*"
+        - "--authrpc.jwtsecret"
+        - "/data/jwt.txt"
+        ports:
+        - containerPort: 8545
+        - containerPort: 8546
+        - containerPort: 8547
+        - containerPort: 30303
+        volumeMounts:
+        - name: ethereum-data
+          mountPath: /data/
+      volumes:
+      - name: ethereum-data
+        persistentVolumeClaim:
+          claimName: ethereum-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geth-svc
+  # annotations:
+  #   kube-vip.io/loadbalancerIPs: "0.0.0.0"
+  #   kube-vip.io/hwaddr: "00:00:6C:32:98:76"
+  #   kube-vip.io/loadbalancerHostname: "geth-ethereum-node"
+spec:
+  ports:
+  - port: 8545
+    targetPort: 8545
+    protocol: TCP
+    name: http-json-rpc-api
+  - port: 8546
+    targetPort: 8546
+    protocol: TCP
+    name: websocket-json-rpc-api
+  - port: 8547
+    targetPort: 8547
+    protocol: TCP
+    name: graphql-api
+  - port: 30303
+    targetPort: 30303
+    protocol: TCP
+    name: tcp-p2p
+  - port: 30303
+    targetPort: 30303
+    protocol: UDP
+    name: udp-p2p
+  selector:
+    app: geth
+  # type: LoadBalancer

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lighthouse-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lighthouse
+  template:
+    metadata:
+      labels:
+        app: lighthouse
+    spec:
+      initContainers:
+      - name: lighthouse-wait-for-jwt
+        image: busybox
+        command: ["sh", "-c", "until [ -f /data/jwt.txt ]; do sleep 1; done;"]
+        volumeMounts:
+        - name: ethereum-data
+          mountPath: /data/
+      containers:
+      - name: lighthouse
+        image: sigp/lighthouse
+        command: ["lighthouse", "beacon"]
+        args:
+        - "--network"
+        - "mainnet"
+        - "--datadir"
+        - "/data/lighthouse/"
+        - "--execution-endpoint"
+        - "http://geth-svc.iosis-tech-mainnet-ethereum.svc.cluster.local:8545"
+        - "--execution-jwt"
+        - "/data/jwt.txt"
+        - "--checkpoint-sync-url"
+        - "https://mainnet.checkpoint.sigp.io"
+        - "--disable-deposit-contract-sync"
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+        volumeMounts:
+        - name: ethereum-data
+          mountPath: /data/
+      volumes:
+      - name: ethereum-data
+        persistentVolumeClaim:
+          claimName: ethereum-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lighthouse-svc
+spec:
+  ports:
+  - port: 9000
+    targetPort: 9000
+    protocol: TCP
+    name: tcp-lighthouse
+  - port: 9000
+    targetPort: 9000
+    protocol: UDP
+    name: udp-lighthouse
+  - port: 9001
+    targetPort: 9001
+    protocol: UDP
+    name: udp-quic
+  selector:
+    app: lighthouse

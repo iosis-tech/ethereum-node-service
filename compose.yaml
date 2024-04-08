@@ -1,0 +1,29 @@
+services:
+  geth:
+    image: ethereum/client-go
+    command: >
+      --datadir /var/lib/data
+      --authrpc.addr 0.0.0.0
+      --authrpc.port 8551
+      --authrpc.vhosts *
+      --authrpc.jwtsecret /secrets/jwt.hex
+    volumes:
+      - ./geth:/var/lib/data
+      - ./secrets:/secrets
+    ports:
+      - "8551:8551"
+      - "30303:30303"
+
+  lighthouse:
+    image: sigp/lighthouse
+    command: >
+      lighthouse beacon
+      --network mainnet
+      --datadir /var/lib/data
+      --execution-endpoint http://geth:8551
+      --execution-jwt /secrets/jwt.hex
+      --checkpoint-sync-url https://mainnet.checkpoint.sigp.io
+      --disable-deposit-contract-sync
+    volumes:
+      - ./lighthouse:/var/lib/data
+      - ./secrets:/secrets
