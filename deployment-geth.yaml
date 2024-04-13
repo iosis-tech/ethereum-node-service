@@ -13,11 +13,17 @@ spec:
         app: geth
     spec:
       initContainers:
-      - name: geth-generate-jwt
-        image: frapsoft/openssl
-        command: ["sh", "-c", "openssl rand -hex 32 | tr -d '\\n' > /data/jwt.txt"]
+      - name: init-jwt
+        image: busybox
+        command: ['sh', '-c', 'echo $JWT > /data/jwt.txt']
+        env:
+        - name: JWT
+          valueFrom:
+            secretKeyRef:
+              name: ethereum-secret
+              key: JWT
         volumeMounts:
-        - name: ethereum-data
+        - name: geth-data
           mountPath: /data/
       containers:
       - name: geth
@@ -40,12 +46,12 @@ spec:
         - containerPort: 8547
         - containerPort: 30303
         volumeMounts:
-        - name: ethereum-data
+        - name: geth-data
           mountPath: /data/
       volumes:
-      - name: ethereum-data
+      - name: geth-data
         persistentVolumeClaim:
-          claimName: ethereum-pvc
+          claimName: geth-pvc
 ---
 apiVersion: v1
 kind: Service

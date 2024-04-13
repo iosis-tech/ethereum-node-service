@@ -7,3 +7,10 @@ resources:
   - deployment-geth.yaml
   - deployment-lighthouse.yaml
   - pvc.yaml
+
+secretGenerator:
+  - name: ethereum-secret
+    envs:
+      - secret.env
+    options:
+      disableNameSuffixHash: true

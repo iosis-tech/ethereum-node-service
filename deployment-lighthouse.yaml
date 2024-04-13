@@ -13,11 +13,17 @@ spec:
         app: lighthouse
     spec:
       initContainers:
-      - name: lighthouse-wait-for-jwt
+      - name: init-jwt
         image: busybox
-        command: ["sh", "-c", "until [ -f /data/jwt.txt ]; do sleep 1; done;"]
+        command: ['sh', '-c', 'echo $JWT > /data/jwt.txt']
+        env:
+        - name: JWT
+          valueFrom:
+            secretKeyRef:
+              name: ethereum-secret
+              key: JWT
         volumeMounts:
-        - name: ethereum-data
+        - name: lighthouse-data
           mountPath: /data/
       containers:
       - name: lighthouse
@@ -39,12 +45,12 @@ spec:
         - containerPort: 9000
         - containerPort: 9001
         volumeMounts:
-        - name: ethereum-data
+        - name: lighthouse-data
           mountPath: /data/
       volumes:
-      - name: ethereum-data
+      - name: lighthouse-data
         persistentVolumeClaim:
-          claimName: ethereum-pvc
+          claimName: lighthouse-pvc
 ---
 apiVersion: v1
 kind: Service
