@@ -6,7 +6,9 @@ namespace: iosis-tech-mainnet-ethereum
 resources:
   - deployment-geth.yaml
   - deployment-lighthouse.yaml
-  - pvc.yaml
+  - certificates.yaml
+  - issuer.yaml
+  # - pvc.yaml
 
 secretGenerator:
   - name: ethereum-secret

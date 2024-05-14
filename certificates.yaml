@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ethereum-mainnet-cert
+spec:
+  secretName: ethereum-mainnet-tls
+
+  dnsNames:
+    - mainnet.ethereum.iosis.tech
+    - ws.mainnet.ethereum.iosis.tech
+  issuerRef:
+    name: letsencrypt-http01
+    kind: Issuer
