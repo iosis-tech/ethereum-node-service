@@ -31,15 +31,15 @@ spec:
         command: ["lighthouse", "beacon"]
         args:
         - "--network"
-        - "mainnet"
+        - "sepolia"
         - "--datadir"
         - "/data/lighthouse/"
         - "--execution-endpoint"
-        - "http://geth-svc.iosis-tech-mainnet-ethereum.svc.cluster.local:8545"
+        - "http://geth-svc.iosis-tech-sepolia-ethereum.svc.cluster.local:8545"
         - "--execution-jwt"
         - "/data/jwt.txt"
         - "--checkpoint-sync-url"
-        - "https://mainnet.checkpoint.sigp.io"
+        - "https://beaconstate-sepolia.chainsafe.io"
         - "--disable-deposit-contract-sync"
         ports:
         - containerPort: 9000

@@ -30,6 +30,7 @@ spec:
         image: ethereum/client-go
         command: ["geth"]
         args:
+        - "--sepolia"
         - "--datadir"
         - "/data/geth/"
         - "--authrpc.addr"
@@ -69,8 +70,8 @@ metadata:
   name: geth-svc
   annotations:
     kube-vip.io/loadbalancerIPs: "0.0.0.0"
-    kube-vip.io/hwaddr: "00:00:6C:32:98:80"
-    kube-vip.io/loadbalancerHostname: "mainnet-ethereum-node"
+    kube-vip.io/hwaddr: "00:00:6C:32:98:81"
+    kube-vip.io/loadbalancerHostname: "sepolia-ethereum-node"
 spec:
   ports:
   - port: 3334
@@ -113,11 +114,11 @@ spec:
   ingressClassName: nginx-ingress-prod
   tls:
     - hosts:
-        - mainnet.ethereum.iosis.tech
-        - ws.mainnet.ethereum.iosis.tech
-      secretName: ethereum-mainnet-tls
+        - sepolia.ethereum.iosis.tech
+        - ws.sepolia.ethereum.iosis.tech
+      secretName: ethereum-sepolia-tls
   rules:
-    - host: mainnet.ethereum.iosis.tech
+    - host: sepolia.ethereum.iosis.tech
       http:
         paths:
           - path: /
@@ -127,7 +128,7 @@ spec:
                 name: geth-svc
                 port:
                   number: 3334
-    - host: ws.mainnet.ethereum.iosis.tech
+    - host: ws.sepolia.ethereum.iosis.tech
       http:
         paths:
           - path: /
