@@ -31,6 +31,10 @@ spec:
         command: ["geth"]
         args:
         - "--sepolia"
+        - "--syncmode"
+        - "full"
+        - "--gcmode"
+        - "archive"
         - "--datadir"
         - "/data/geth/"
         - "--authrpc.addr"
