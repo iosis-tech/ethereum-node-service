@@ -28,6 +28,7 @@ services:
     volumes:
       - ./geth:/data
       - ./secrets:/secrets
+    restart: unless-stopped
 
   lighthouse:
     image: sigp/lighthouse
@@ -48,3 +49,4 @@ services:
       - ./secrets:/secrets
     depends_on:
       - geth
+    restart: unless-stopped
