@@ -1,29 +1,50 @@
+version: '3.8'
+
 services:
   geth:
     image: ethereum/client-go
     command: >
-      --datadir /var/lib/data
+      --sepolia
+      --syncmode full
+      --gcmode archive
+      --datadir /data/geth/
       --authrpc.addr 0.0.0.0
-      --authrpc.port 8551
+      --authrpc.port 8545
       --authrpc.vhosts *
-      --authrpc.jwtsecret /secrets/jwt.hex
-    volumes:
-      - ./geth:/var/lib/data
-      - ./secrets:/secrets
+      --authrpc.jwtsecret /secrets/jwt.txt
+      --http
+      --http.addr 0.0.0.0
+      --http.port 3334
+      --http.api eth,net,web3
+      --http.corsdomain=*
+      --http.vhosts=*
     ports:
-      - "8551:8551"
-      - "30303:30303"
+      - "3334:3334"
+      - "8545:8545"
+      - "8546:8546"
+      - "8547:8547"
+      - "30303:30303/tcp"
+      - "30303:30303/udp"
+    volumes:
+      - ./geth:/data
+      - ./secrets:/secrets
 
   lighthouse:
     image: sigp/lighthouse
     command: >
       lighthouse beacon
-      --network mainnet
-      --datadir /var/lib/data
-      --execution-endpoint http://geth:8551
-      --execution-jwt /secrets/jwt.hex
-      --checkpoint-sync-url https://mainnet.checkpoint.sigp.io
+      --network sepolia
+      --datadir /data/lighthouse/
+      --execution-endpoint http://geth:8545
+      --execution-jwt /secrets/jwt.txt
+      --checkpoint-sync-url https://beaconstate-sepolia.chainsafe.io
       --disable-deposit-contract-sync
+    ports:
+      - "9000:9000/tcp"
+      - "9000:9000/udp"
+      - "9001:9001/udp"
     volumes:
-      - ./lighthouse:/var/lib/data
+      - ./lighthouse:/data
       - ./secrets:/secrets
+    depends_on:
+      - geth
