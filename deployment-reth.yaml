@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reth-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reth
+  template:
+    metadata:
+      labels:
+        app: reth
+    spec:
+      containers:
+        - name: reth
+          image: ghcr.io/paradigmxyz/reth
+          command: ["/usr/local/bin/reth"]
+          args:
+            - "node"
+            - "--chain"
+            - "mainnet"
+            - "--metrics"
+            - "0.0.0.0:9001"
+            - "--log.file.directory"
+            - "/root/logs"
+            - "--authrpc.addr"
+            - "0.0.0.0"
+            - "--authrpc.port"
+            - "8551"
+            - "--authrpc.jwtsecret"
+            - "/root/jwt/jwt.hex"
+            - "--http"
+            - "--http.addr"
+            - "0.0.0.0"
+            - "--http.port"
+            - "8545"
+            - "--http.api"
+            - "eth,net,web3"
+          ports:
+            - containerPort: 9001
+              name: metrics
+              protocol: TCP
+            - containerPort: 30303
+              name: tcp-p2p
+              protocol: TCP
+            - containerPort: 30303
+              name: udp-p2p
+              protocol: UDP
+            - containerPort: 8545
+              name: rpc
+              protocol: TCP
+            - containerPort: 8551
+              name: engine
+              protocol: TCP
+          volumeMounts:
+            - name: reth-data
+              mountPath: /root/.local/share/reth/mainnet
+            - name: reth-logs
+              mountPath: /root/logs
+            - name: jwt-token
+              mountPath: /root/jwt
+              readOnly: true
+      volumes:
+        - name: reth-data
+          persistentVolumeClaim:
+            claimName: reth-pvc
+        - name: reth-logs
+          emptyDir: {}
+        - name: jwt-token
+          secret:
+            secretName: jwt-secret
+            items:
+              - key: JWT
+                path: jwt.hex
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reth-svc
+  annotations:
+    kube-vip.io/loadbalancerIPs: "0.0.0.0"
+    kube-vip.io/hwaddr: "00:00:6C:32:98:80"
+    kube-vip.io/loadbalancerHostname: "mainnet-ethereum-node"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9001
+      targetPort: 9001
+      protocol: TCP
+      name: metrics
+    - port: 30303
+      targetPort: 30303
+      protocol: TCP
+      name: tcp-p2p
+    - port: 30303
+      targetPort: 30303
+      protocol: UDP
+      name: udp-p2p
+    - port: 8545
+      targetPort: 8545
+      protocol: TCP
+      name: rpc
+    - port: 8551
+      targetPort: 8551
+      protocol: TCP
+      name: engine
+  selector:
+    app: reth
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reth-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: mainnet.ethereum.iosis.tech
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: reth-svc
+                port:
+                  number: 8545

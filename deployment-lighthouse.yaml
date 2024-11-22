@@ -12,45 +12,57 @@ spec:
       labels:
         app: lighthouse
     spec:
-      initContainers:
-      - name: init-jwt
-        image: busybox
-        command: ['sh', '-c', 'echo $JWT > /data/jwt.txt']
-        env:
-        - name: JWT
-          valueFrom:
-            secretKeyRef:
-              name: ethereum-secret
-              key: JWT
-        volumeMounts:
-        - name: lighthouse-data
-          mountPath: /data/
       containers:
       - name: lighthouse
-        image: sigp/lighthouse
-        command: ["lighthouse", "beacon"]
+        image: sigp/lighthouse:v5.1.3-modern
+        command: ["lighthouse", "bn"]
         args:
         - "--network"
         - "mainnet"
-        - "--datadir"
-        - "/data/lighthouse/"
+        - "--http"
+        - "--http-address"
+        - "0.0.0.0"
         - "--execution-endpoint"
-        - "http://geth-svc.iosis-tech-mainnet-ethereum.svc.cluster.local:8545"
+        - "http://reth:8551"
+        - "--metrics"
+        - "--metrics-address"
+        - "0.0.0.0"
         - "--execution-jwt"
-        - "/data/jwt.txt"
+        - "/root/jwt/jwt.hex"
         - "--checkpoint-sync-url"
         - "https://mainnet.checkpoint.sigp.io"
-        - "--disable-deposit-contract-sync"
         ports:
+        - containerPort: 5052
+          name: http
+          protocol: TCP
+        - containerPort: 5053
+          name: secondary-http
+          protocol: TCP
+        - containerPort: 5054
+          name: metrics
+          protocol: TCP
         - containerPort: 9000
-        - containerPort: 9001
+          name: tcp-p2p
+          protocol: TCP
+        - containerPort: 9000
+          name: udp-p2p
+          protocol: UDP
         volumeMounts:
         - name: lighthouse-data
-          mountPath: /data/
+          mountPath: /root/.lighthouse
+        - name: jwt-token
+          mountPath: /root/jwt
+          readOnly: true
       volumes:
       - name: lighthouse-data
         persistentVolumeClaim:
           claimName: lighthouse-pvc
+      - name: jwt-token
+        secret:
+          secretName: jwt-secret
+          items:
+          - key: JWT
+            path: jwt.hex
 ---
 apiVersion: v1
 kind: Service
@@ -58,17 +70,25 @@ metadata:
   name: lighthouse-svc
 spec:
   ports:
+  - port: 5052
+    targetPort: 5052
+    protocol: TCP
+    name: http
+  - port: 5053
+    targetPort: 5053
+    protocol: TCP
+    name: secondary-http
+  - port: 5054
+    targetPort: 5054
+    protocol: TCP
+    name: metrics
   - port: 9000
     targetPort: 9000
     protocol: TCP
-    name: tcp-lighthouse
+    name: tcp-p2p
   - port: 9000
     targetPort: 9000
     protocol: UDP
-    name: udp-lighthouse
-  - port: 9001
-    targetPort: 9001
-    protocol: UDP
-    name: udp-quic
+    name: udp-p2p
   selector:
     app: lighthouse

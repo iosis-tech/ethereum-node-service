@@ -1,17 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: iosis-tech-mainnet-ethereum
+namespace: iosis-tech-mainnet-ethereum-node
 
 resources:
-  - deployment-geth.yaml
+  - deployment-reth.yaml
   - deployment-lighthouse.yaml
   - certificates.yaml
   - issuer.yaml
-  # - pvc.yaml
+  - pvc.yaml
 
 secretGenerator:
-  - name: ethereum-secret
+  - name: jwt-secret
     envs:
       - secret.env
     options:
