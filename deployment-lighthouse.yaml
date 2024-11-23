@@ -23,14 +23,16 @@ spec:
         - "--http-address"
         - "0.0.0.0"
         - "--execution-endpoint"
-        - "http://reth:8551"
+        - "http://reth-svc.iosis-tech-mainnet-ethereum-node.svc.cluster.local:8551"
         - "--metrics"
         - "--metrics-address"
         - "0.0.0.0"
         - "--execution-jwt"
         - "/root/jwt/jwt.hex"
         - "--checkpoint-sync-url"
-        - "https://mainnet.checkpoint.sigp.io"
+        - "https://mainnet-checkpoint-sync.stakely.io"
+        - "--checkpoint-sync-url-timeout"
+        - "1000"
         ports:
         - containerPort: 5052
           name: http
