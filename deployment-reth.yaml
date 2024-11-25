@@ -19,7 +19,7 @@ spec:
           args:
             - "node"
             - "--chain"
-            - "mainnet"
+            - "sepolia"
             - "--metrics"
             - "0.0.0.0:9001"
             - "--log.file.directory"
@@ -55,7 +55,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: reth-data
-              mountPath: /root/.local/share/reth/mainnet
+              mountPath: /root/.local/share/reth/sepolia
             - name: reth-logs
               mountPath: /root/logs
             - name: jwt-token
@@ -80,8 +80,8 @@ metadata:
   name: reth-svc
   annotations:
     kube-vip.io/loadbalancerIPs: "0.0.0.0"
-    kube-vip.io/hwaddr: "00:00:6C:32:98:80"
-    kube-vip.io/loadbalancerHostname: "mainnet-ethereum-node"
+    kube-vip.io/hwaddr: "00:00:6C:32:98:81"
+    kube-vip.io/loadbalancerHostname: "sepolia-ethereum-node"
 spec:
   type: LoadBalancer
   ports:
@@ -89,11 +89,11 @@ spec:
       targetPort: 9001
       protocol: TCP
       name: metrics
-    - port: 30303
+    - port: 30304
       targetPort: 30303
       protocol: TCP
       name: tcp-p2p
-    - port: 30303
+    - port: 30304
       targetPort: 30303
       protocol: UDP
       name: udp-p2p
@@ -115,9 +115,13 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-ingress-prod
+  tls:
+    - hosts:
+        - sepolia.ethereum.iosis.tech
+      secretName: ethereum-sepolia-tls
   rules:
-    - host: mainnet.ethereum.iosis.tech
+    - host: sepolia.ethereum.iosis.tech
       http:
         paths:
           - path: /

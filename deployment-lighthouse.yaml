@@ -18,19 +18,19 @@ spec:
         command: ["lighthouse", "bn"]
         args:
         - "--network"
-        - "mainnet"
+        - "sepolia"
         - "--http"
         - "--http-address"
         - "0.0.0.0"
         - "--execution-endpoint"
-        - "http://reth-svc.iosis-tech-mainnet-ethereum-node.svc.cluster.local:8551"
+        - "http://reth-svc.iosis-tech-sepolia-ethereum-node.svc.cluster.local:8551"
         - "--metrics"
         - "--metrics-address"
         - "0.0.0.0"
         - "--execution-jwt"
         - "/root/jwt/jwt.hex"
         - "--checkpoint-sync-url"
-        - "https://mainnet-checkpoint-sync.stakely.io"
+        - "https://sepolia.checkpoint-sync.ethpandaops.io"
         - "--checkpoint-sync-url-timeout"
         - "1000"
         ports:
