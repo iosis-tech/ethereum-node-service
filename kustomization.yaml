@@ -4,11 +4,11 @@ kind: Kustomization
 namespace: iosis-tech-sepolia-ethereum-node
 
 resources:
-  - deployment-reth.yaml
+  - deployment-geth.yaml
   - deployment-lighthouse.yaml
-  - certificates.yaml
-  - issuer.yaml
-  - pvc.yaml
+  # - certificates.yaml
+  # - issuer.yaml
+  # - pvc.yaml
 
 secretGenerator:
   - name: jwt-secret

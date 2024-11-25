@@ -1,33 +1,35 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: reth-deployment
+  name: geth-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: reth
+      app: geth
   template:
     metadata:
       labels:
-        app: reth
+        app: geth
     spec:
       containers:
-        - name: reth
-          image: ghcr.io/paradigmxyz/reth
-          command: ["/usr/local/bin/reth"]
+        - name: geth
+          image: ethereum/client-go
+          command: ["geth"]
           args:
-            - "node"
-            - "--chain"
-            - "sepolia"
-            - "--metrics"
-            - "0.0.0.0:9001"
-            - "--log.file.directory"
-            - "/root/logs"
+            - "--sepolia"
+            - "--syncmode"
+            - "full"
+            - "--gcmode"
+            - "archive"
+            - "--datadir"
+            - "/data/geth/"
             - "--authrpc.addr"
             - "0.0.0.0"
             - "--authrpc.port"
             - "8551"
+            - "--authrpc.vhosts"
+            - "*"
             - "--authrpc.jwtsecret"
             - "/root/jwt/jwt.hex"
             - "--http"
@@ -42,9 +44,6 @@ spec:
             - "--port"
             - "30304"
           ports:
-            - containerPort: 9001
-              name: metrics
-              protocol: TCP
             - containerPort: 30304
               name: tcp-p2p
               protocol: TCP
@@ -58,30 +57,30 @@ spec:
               name: engine
               protocol: TCP
           volumeMounts:
-            - name: reth-data
-              mountPath: /root/.local/share/reth/sepolia
-            - name: reth-logs
+            - name: geth-data
+              mountPath: /data/geth/
+            - name: geth-logs
               mountPath: /root/logs
             - name: jwt-token
               mountPath: /root/jwt
               readOnly: true
       volumes:
-        - name: reth-data
+        - name: geth-data
           persistentVolumeClaim:
-            claimName: reth-pvc
-        - name: reth-logs
+            claimName: geth-pvc
+        - name: geth-logs
           emptyDir: {}
         - name: jwt-token
           secret:
             secretName: jwt-secret
             items:
-              - key: JWT
-                path: jwt.hex
+            - key: JWT
+              path: jwt.hex
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: reth-svc
+  name: geth-svc
   annotations:
     kube-vip.io/loadbalancerIPs: "0.0.0.0"
     kube-vip.io/hwaddr: "00:00:6C:32:98:81"
@@ -89,10 +88,6 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    - port: 9001
-      targetPort: 9001
-      protocol: TCP
-      name: metrics
     - port: 30304
       targetPort: 30304
       protocol: TCP
@@ -110,12 +105,12 @@ spec:
       protocol: TCP
       name: engine
   selector:
-    app: reth
+    app: geth
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: reth-ingress
+  name: geth-ingress
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
@@ -132,6 +127,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: reth-svc
+                name: geth-svc
                 port:
                   number: 8545

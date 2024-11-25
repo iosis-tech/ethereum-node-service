@@ -23,7 +23,7 @@ spec:
         - "--http-address"
         - "0.0.0.0"
         - "--execution-endpoint"
-        - "http://reth-svc.iosis-tech-sepolia-ethereum-node.svc.cluster.local:8551"
+        - "http://geth-svc.iosis-tech-sepolia-ethereum-node.svc.cluster.local:8551"
         - "--metrics"
         - "--metrics-address"
         - "0.0.0.0"

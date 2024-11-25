@@ -13,11 +13,11 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: reth-pvc
+  name: geth-pvc
 spec:
   storageClassName: topolvm-provisioner
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1000Gi
+      storage: 3900Gi
