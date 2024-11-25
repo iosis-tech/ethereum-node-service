@@ -115,7 +115,11 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-ingress-prod
+  tls:
+    - hosts:
+        - mainnet.ethereum.iosis.tech
+      secretName: ethereum-mainnet-tls
   rules:
     - host: mainnet.ethereum.iosis.tech
       http:
