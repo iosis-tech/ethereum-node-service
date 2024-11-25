@@ -37,14 +37,18 @@ spec:
             - "8545"
             - "--http.api"
             - "eth,net,web3"
+            - "--discovery.port"
+            - "30304"
+            - "--port"
+            - "30304"
           ports:
             - containerPort: 9001
               name: metrics
               protocol: TCP
-            - containerPort: 30303
+            - containerPort: 30304
               name: tcp-p2p
               protocol: TCP
-            - containerPort: 30303
+            - containerPort: 30304
               name: udp-p2p
               protocol: UDP
             - containerPort: 8545
@@ -90,11 +94,11 @@ spec:
       protocol: TCP
       name: metrics
     - port: 30304
-      targetPort: 30303
+      targetPort: 30304
       protocol: TCP
       name: tcp-p2p
     - port: 30304
-      targetPort: 30303
+      targetPort: 30304
       protocol: UDP
       name: udp-p2p
     - port: 8545
