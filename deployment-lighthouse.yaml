@@ -94,3 +94,27 @@ spec:
     name: udp-p2p
   selector:
     app: lighthouse
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lighthouse-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  ingressClassName: nginx-ingress-prod
+  tls:
+    - hosts:
+        - beacon.mainnet.ethereum.iosis.tech
+      secretName: ethereum-mainnet-tls
+  rules:
+    - host: beacon.mainnet.ethereum.iosis.tech
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lighthouse-svc
+                port:
+                  number: 5052

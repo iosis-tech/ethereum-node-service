@@ -8,6 +8,7 @@ spec:
 
   dnsNames:
     - mainnet.ethereum.iosis.tech
+    - beacon.mainnet.ethereum.iosis.tech
   issuerRef:
     name: letsencrypt-http01
     kind: Issuer
