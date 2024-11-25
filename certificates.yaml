@@ -8,6 +8,7 @@ spec:
 
   dnsNames:
     - sepolia.ethereum.iosis.tech
+    - beacon.sepolia.ethereum.iosis.tech
   issuerRef:
     name: letsencrypt-http01
     kind: Issuer
