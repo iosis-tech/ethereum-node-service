@@ -33,6 +33,12 @@ spec:
         - "https://mainnet-checkpoint-sync.stakely.io"
         - "--checkpoint-sync-url-timeout"
         - "1000"
+        - "--disable-backfill-rate-limiting"
+        - "--reconstruct-historic-states"
+        - "--prune-blobs"
+        - "false"
+        - "--prune-payloads"
+        - "false"
         ports:
         - containerPort: 5052
           name: http
