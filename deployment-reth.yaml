@@ -37,6 +37,8 @@ spec:
             - "8545"
             - "--http.api"
             - "eth,net,web3"
+            - "--rpc.eth-proof-window"
+            - "1209600"
           ports:
             - containerPort: 9001
               name: metrics
