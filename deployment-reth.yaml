@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: reth
-          image: ghcr.io/paradigmxyz/reth
+          image: ghcr.io/paradigmxyz/reth:v1.1.5
           command: ["/usr/local/bin/reth"]
           args:
             - "node"
