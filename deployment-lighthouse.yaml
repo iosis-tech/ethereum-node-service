@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: lighthouse
-        image: sigp/lighthouse:v7.0.0-beta.2
+        image: sigp/lighthouse:v7.0.0-beta.0
         command: ["lighthouse", "bn"]
         args:
         - "--network"
