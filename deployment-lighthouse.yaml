@@ -107,6 +107,10 @@ metadata:
   name: lighthouse-ingress
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "20s"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
 spec:
   ingressClassName: nginx-ingress-prod
   tls:
