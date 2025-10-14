@@ -85,12 +85,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: geth-svc
-  annotations:
-    kube-vip.io/loadbalancerIPs: "0.0.0.0"
-    kube-vip.io/hwaddr: "00:00:6C:32:98:81"
-    kube-vip.io/loadbalancerHostname: "sepolia-ethereum-node"
 spec:
-  type: LoadBalancer
   ports:
     - port: 30304
       targetPort: 30304
