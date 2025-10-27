@@ -14,23 +14,23 @@ spec:
     spec:
       containers:
       - name: lighthouse
-        image: sigp/lighthouse:v7.0.0-beta.0
+        image: sigp/lighthouse:v7.1.0
         command: ["lighthouse", "bn"]
         args:
         - "--network"
-        - "sepolia"
+        - "mainnet"
         - "--http"
         - "--http-address"
         - "0.0.0.0"
         - "--execution-endpoint"
-        - "http://reth-svc.iosis-tech-sepolia-ethereum-node.svc.cluster.local:8551"
+        - "http://reth-svc.iosis-tech-mainnet-ethereum-node.svc.cluster.local:8551"
         - "--metrics"
         - "--metrics-address"
         - "0.0.0.0"
         - "--execution-jwt"
         - "/root/jwt/jwt.hex"
         - "--checkpoint-sync-url"
-        - "https://sepolia.checkpoint-sync.ethpandaops.io"
+        - "https://mainnet.checkpoint.sigp.io"
         - "--checkpoint-sync-url-timeout"
         - "1000"
         - "--disable-backfill-rate-limiting"
@@ -115,10 +115,10 @@ spec:
   ingressClassName: nginx-ingress-prod
   tls:
     - hosts:
-        - beacon.sepolia.ethereum.iosis.tech
-      secretName: ethereum-sepolia-tls
+        - beacon.mainnet.ethereum.iosis.tech
+      secretName: ethereum-mainnet-tls
   rules:
-    - host: beacon.sepolia.ethereum.iosis.tech
+    - host: beacon.mainnet.ethereum.iosis.tech
       http:
         paths:
           - path: /
