@@ -16,3 +16,10 @@ secretGenerator:
       - secret.env
     options:
       disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: reth-config-map
+    files:
+      - reth.toml
+    options:
+      disableNameSuffixHash: true

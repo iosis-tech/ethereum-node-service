@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: lighthouse
-        image: sigp/lighthouse:v5.3.0
+        image: sigp/lighthouse:v7.0.0-beta.0
         command: ["lighthouse", "bn"]
         args:
         - "--network"
@@ -33,6 +33,12 @@ spec:
         - "https://sepolia.checkpoint-sync.ethpandaops.io"
         - "--checkpoint-sync-url-timeout"
         - "1000"
+        - "--disable-backfill-rate-limiting"
+        - "--reconstruct-historic-states"
+        - "--prune-blobs"
+        - "false"
+        - "--prune-payloads"
+        - "false"
         ports:
         - containerPort: 5052
           name: http
@@ -94,3 +100,31 @@ spec:
     name: udp-p2p
   selector:
     app: lighthouse
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lighthouse-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "20s"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+spec:
+  ingressClassName: nginx-ingress-prod
+  tls:
+    - hosts:
+        - beacon.sepolia.ethereum.iosis.tech
+      secretName: ethereum-sepolia-tls
+  rules:
+    - host: beacon.sepolia.ethereum.iosis.tech
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lighthouse-svc
+                port:
+                  number: 5052

@@ -12,16 +12,25 @@ spec:
       labels:
         app: reth
     spec:
+      initContainers:
+        - name: reth-init-config
+          image: busybox
+          command: ['sh', '-c', 'cp /config-ro/reth.toml /config-rw/reth.toml']
+          volumeMounts:
+            - name: reth-config-ro
+              mountPath: /config-ro
+            - name: reth-config-rw
+              mountPath: /config-rw
       containers:
         - name: reth
-          image: ghcr.io/paradigmxyz/reth
+          image: ghcr.io/paradigmxyz/reth:v1.8.2
           command: ["/usr/local/bin/reth"]
           args:
             - "node"
+            - "--config"
+            - "/root/.local/share/reth/config/reth.toml"
             - "--chain"
             - "sepolia"
-            - "--metrics"
-            - "0.0.0.0:9001"
             - "--log.file.directory"
             - "/root/logs"
             - "--authrpc.addr"
@@ -37,20 +46,7 @@ spec:
             - "8545"
             - "--http.api"
             - "eth,net,web3"
-            - "--discovery.port"
-            - "30304"
-            - "--port"
-            - "30304"
           ports:
-            - containerPort: 9001
-              name: metrics
-              protocol: TCP
-            - containerPort: 30304
-              name: tcp-p2p
-              protocol: TCP
-            - containerPort: 30304
-              name: udp-p2p
-              protocol: UDP
             - containerPort: 8545
               name: rpc
               protocol: TCP
@@ -65,6 +61,8 @@ spec:
             - name: jwt-token
               mountPath: /root/jwt
               readOnly: true
+            - name: reth-config-rw
+              mountPath: /root/.local/share/reth/config
       volumes:
         - name: reth-data
           persistentVolumeClaim:
@@ -77,30 +75,18 @@ spec:
             items:
               - key: JWT
                 path: jwt.hex
+        - name: reth-config-ro
+          configMap:
+            name: reth-config-map
+        - name: reth-config-rw
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: reth-svc
-  annotations:
-    kube-vip.io/loadbalancerIPs: "0.0.0.0"
-    kube-vip.io/hwaddr: "00:00:6C:32:98:81"
-    kube-vip.io/loadbalancerHostname: "sepolia-ethereum-node"
 spec:
-  type: LoadBalancer
   ports:
-    - port: 9001
-      targetPort: 9001
-      protocol: TCP
-      name: metrics
-    - port: 30304
-      targetPort: 30304
-      protocol: TCP
-      name: tcp-p2p
-    - port: 30304
-      targetPort: 30304
-      protocol: UDP
-      name: udp-p2p
     - port: 8545
       targetPort: 8545
       protocol: TCP
@@ -118,6 +104,10 @@ metadata:
   name: reth-ingress
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "20s"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
 spec:
   ingressClassName: nginx-ingress-prod
   tls:
