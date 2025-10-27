@@ -55,7 +55,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: reth-data
-              mountPath: /root/.local/share/reth/sepolia
+              mountPath: /root/.local/share/reth/mainnet
             - name: reth-logs
               mountPath: /root/logs
             - name: jwt-token
